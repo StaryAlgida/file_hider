@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import messagebox, simpledialog, filedialog
+from os import path
 
 
 class Code_injector:
@@ -47,8 +48,6 @@ class Code_injector:
         self.label_file2 = tk.Label(self.root, text=self.text2, font=("Arial", 14))
         self.button_get_file2 = tk.Button(self.root, text="Get file", font=('Arial', 12), command=self.get_file2)
         ###########################################
-        self.done_label = tk.Label(self.root, text="Done!", font=('Arial', 13))  # label show done
-        ###########################################
         self.root.mainloop()  # main loop
 
     def check(self):
@@ -70,6 +69,7 @@ class Code_injector:
         else:
             with open(self.file2, 'rb') as f, open(self.file1, 'ab') as w:
                 w.write(b"#!@" + bytes(self.file2[self.file2.index("."):], encoding='utf8') + b"#!@" + f.read())
+                messagebox.showinfo(title="Done", message="DONE! :)")
 
     def start_extract(self):
         if self.file1 == "":
@@ -84,18 +84,26 @@ class Code_injector:
                 self.extenction = self.content[self.index[0]+3:self.index[1]]
                 self.extenction = str(self.extenction)
                 self.__a = True
+
                 while self.__a == True:
                     self.file_name = simpledialog.askstring("New file", "Enter a file name", )
+
                     if self.file_name == None or self.file_name == '':
                         messagebox.showerror("Error", "You don't enter a file name")
+
+                    elif path.isfile(self.file_name+self.extenction[2:-1]):
+                        messagebox.showerror("Error", "This file already exist")
+                        self.answer = messagebox.askyesno(title="Confirmation", message="Do you want overwrite this file?")
+                        if self.answer:
+                            self.__a = False
                     else:
                         self.__a = False
 
                 with open(self.file_name + self.extenction[2:-1], "wb") as w:
                     w.write(self.content[self.index[1] + 3:])
+                    messagebox.showinfo(title="Done", message="DONE! :)")
             except ValueError:
                 messagebox.showerror("Error", "There is nothing here. :(")
-            self.done_label.pack()
 
 
     def hide(self):
@@ -122,7 +130,7 @@ class Code_injector:
         self.button_start_extract.pack()
 
     def get_file1(self):
-        self.file1 = filedialog.askopenfilename(title="Choose a file")  # poprawić
+        self.file1 = filedialog.askopenfilename(title="Choose a file")
         if self.file1 != "":
             self.label_file1.configure(text=self.file1)
         else:
